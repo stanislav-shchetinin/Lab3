@@ -1,0 +1,115 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 15px;
+    background-color: #0b0c2a;
+    font-family: Roboto, sans-serif;
+    color: #fff;
+    font-size: 20px;
+}
+
+.header {
+    background-color: #070720;
+    display: flex;
+    justify-content: space-between;
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #070720;
+}
+
+.header,
+.content {
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 10px;
+}
+
+.clock-container {
+    margin-top: 75px;
+    width: 300px;
+    height: 300px;
+}
+
+span {
+    width: 200px;
+}
+
+span.left {
+    text-align: left;
+}
+
+span.right {
+    text-align: right;
+}
+
+.buttons-container .button-style {
+    border-radius: 4px;
+    box-shadow: inset #fff3;
+    color: #fff;
+    width: 200px;
+    padding: 6px;
+    text-align: center;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+    text-decoration: none;
+    text-shadow: #00000013;
+    transition: background-color 0.1s linear;
+    background-color: #ffab51;
+    border: 1px solid #ffab51;
+}
+
+.buttons-container .button-style:hover {
+    border: 1px solid #ffab51;
+    background-color: #ffb168ff;
+    cursor: pointer;
+}
+
+.buttons-container-index {
+    margin-top: 50px;
+}
+
+.buttons-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.wrapper-table {
+    margin-top: 50px;
+    width: 80%;
+}
+
+.button-container-main {
+    margin-top: 50px;
+    width: 60%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-container #form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 350px;
+    height: 350px;
+    border-radius: 10px;
+    /*padding: 20px;*/
+    margin: 20px;
+    background-color: #0b0c2a;
+}
+
+.graph {
+    width: 350px;
+    height: 350px;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+    background-color: #0b0c2a;
+}
