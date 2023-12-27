@@ -41,3 +41,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+src/main/webapp/resources/ts/node_modules
+src/main/webapp/resources/build

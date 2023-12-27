@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
@@ -15,13 +16,15 @@
         <span class="center">Щетинин Станислав</span>
         <span class="right">Вариант №421987</span>
     </div>
+
     <div class="content">
-        <div class="graph" />
+        <canvas class="graph" id="graph" width="390" height="390"/>
+<!--        <div class="graph" />-->
         <div class="form-container">
             <h:form id="form">
                 <h:panelGrid columns="1">
                     <p:outputLabel value="X: " for="x"/>
-                    <h:selectOneRadio name="x" id="x" value="#{point.x}" label="X">
+                    <h:selectOneRadio name="x" id="x" value="#{tableRow.form.point.x}" label="X" required="true">
                         <f:selectItem itemValue="3" itemLabel="3" />
                         <f:selectItem itemValue="2" itemLabel="2" />
                         <f:selectItem itemValue="1" itemLabel="1" />
@@ -35,7 +38,8 @@
 
                 <h:panelGrid columns="1" styleClass="input-y">
                     <p:outputLabel value="Y: " for="y"/>
-                    <p:inputNumber name="y" id="y" maxlength="3" value="#{point.y}" decimalSeparator="." label="Y">
+                    <p:inputNumber name="y" id="y" maxlength="3" value="#{tableRow.form.point.y}" decimalSeparator="." label="Y"
+                                   required="true">
                         <f:validateDoubleRange minimum="-3" maximum="3"/>
                     </p:inputNumber>
                 </h:panelGrid>
@@ -43,7 +47,7 @@
 
                 <h:panelGrid columns="1" styleClass="input-r">
                     <p:outputLabel value="R: " for="r"/>
-                    <h:selectOneMenu name="r" id="r" value="#{point.radius}" label="R">
+                    <h:selectOneMenu name="r" id="r" value="#{tableRow.form.radius}" label="R" required="true">
                         <f:selectItem itemValue="1" itemLabel="1" />
                         <f:selectItem itemValue="2" itemLabel="2" />
                         <f:selectItem itemValue="3" itemLabel="3" />
@@ -55,38 +59,36 @@
                 <p:message for="r" display="text"/>
                 <div class="buttons-container">
                     <p:commandButton ajax="true" id="submit" value="Отправить" styleClass="button-style"
-                                     action="#{pointDAO.addPoint(point)}"
+                                     action="#{tableRowDao.addTableRow(tableRow)}"
                                      update="table @form drawPointsPanel"/>
                 </div>
             </h:form>
         </div>
 
         <div class="wrapper-table">
-            <p:dataTable id="table" var="p" value="#{pointDataModel}" styleClass="table">
+            <p:dataTable id="table" styleClass="table" var="tableRow" value="#{tableRowDao.tableRowList}">
                 <p:column headerText="X">
-                    <h:outputText value="#{p.x}"/>
+                    <h:outputText value="#{tableRow.form.point.x}"/>
                 </p:column>
 
                 <p:column headerText="Y">
-                    <h:outputText value="#{p.y}"/>
+                    <h:outputText value="#{tableRow.form.point.y}"/>
                 </p:column>
 
                 <p:column headerText="Radius">
-                    <h:outputText value="#{p.radius}"/>
+                    <h:outputText value="#{tableRow.form.radius}"/>
                 </p:column>
 
                 <p:column headerText="Result">
-                    <h:outputText value="#{p.result}"/>
+                    <h:outputText value="#{tableRow.result}"/>
                 </p:column>
 
                 <p:column headerText="Current time">
-                    <h:outputText value="#{p.currentTime}">
-                        <!--                        <f:convertDateTime pattern="dd.MM.yyyy HH:mm"/>-->
-                    </h:outputText>
+                    <h:outputText value="#{tableRow.currentDate}"/>
                 </p:column>
 
                 <p:column headerText="Request time">
-                    <h:outputText value="#{p.requestTime}"/>
+                    <h:outputText value="#{tableRow.requestTime}"/>
                 </p:column>
             </p:dataTable>
         </div>
@@ -94,18 +96,18 @@
         <div class="buttons-container button-container-main">
             <h:button id="homeButton" value="Начальная страница" styleClass="button-style" outcome="go-index"/>
             <p:commandButton ajax="true" id="reset" value="Очистить" styleClass="button-style"
-                             action="#{pointDAO.clearAttempts()}" update="table drawPointsPanel"/>
+                             action="#{tableRowDao.clearAll()}" update="table drawPointsPanel"/>
         </div>
     </div>
-<!--    <h:outputScript name="script.js" library="build" type="module"/>-->
+    <h:outputScript name="script.js" library="build" type="module"/>
 </h:body>
 <h:panelGroup id="drawPointsPanel">
-    <h:outputScript>
-        drawGraph(JSON.parse('#{pointDAO.pointsAsJSON}'), '#{point.radius}');
-    </h:outputScript>
+<!--    <h:outputScript>-->
+<!--        drawGraph(JSON.parse('#{pointDAO.pointsAsJSON}'), '#{point.radius}');-->
+<!--    </h:outputScript>-->
 </h:panelGroup>
 
 <p:remoteCommand name="initGraph" update="drawPointsPanel" process="@this"/>
-<p:remoteCommand name="addAttempt" action="#{pointDAO.addPoint(point.radius)}" update="table drawPointsPanel"
+<p:remoteCommand name="addAttempt" action="#{tableRow.form.radius}" update="table drawPointsPanel"
                  process="@this"/>
 </html>
