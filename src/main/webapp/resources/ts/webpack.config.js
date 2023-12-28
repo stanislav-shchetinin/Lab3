@@ -1,7 +1,7 @@
 const path = require("path");
 module.exports = {
     mode: "development",
-    entry: "./src/Main.ts",
+    entry: "./src/main.ts",
     devtool: "inline-source-map",
     module: {
         rules: [{ test: /\.tsx?$/, use: "ts-loader", exclude: /node_modules/ }],

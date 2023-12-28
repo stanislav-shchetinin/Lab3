@@ -7,7 +7,7 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
 <h:head>
-    <title>Graph detector</title>
+    <title>Lab3</title>
     <h:outputStylesheet name="css/index.css"/>
 </h:head>
 <h:body>
@@ -53,42 +53,42 @@
                         <f:selectItem itemValue="3" itemLabel="3" />
                         <f:selectItem itemValue="4" itemLabel="4" />
                         <f:selectItem itemValue="5" itemLabel="5" />
-                        <p:ajax update="drawPointsPanel"/>
-                    </h:selectOneMenu>
+                        <f:ajax event="change" execute="@this" render="canvas" listener="#{canvas.changeRadius(tableRow.form.radius)}" />
+                        </h:selectOneMenu>
                 </h:panelGrid>
                 <p:message for="r" display="text"/>
                 <div class="buttons-container">
                     <p:commandButton ajax="true" id="submit" value="Отправить" styleClass="button-style"
                                      action="#{tableRowDao.addTableRow(tableRow)}"
-                                     update="table @form drawPointsPanel"/>
+                                     update="table @form"/>
                 </div>
             </h:form>
         </div>
 
         <div class="wrapper-table">
-            <p:dataTable id="table" styleClass="table" var="tableRow" value="#{tableRowDao.tableRowList}">
+            <p:dataTable id="table" styleClass="table" var="row" value="#{tableRowDao.tableRowList}">
                 <p:column headerText="X">
-                    <h:outputText value="#{tableRow.form.point.x}"/>
+                    <h:outputText value="#{row.form.point.x}"/>
                 </p:column>
 
                 <p:column headerText="Y">
-                    <h:outputText value="#{tableRow.form.point.y}"/>
+                    <h:outputText value="#{row.form.point.y}"/>
                 </p:column>
 
                 <p:column headerText="Radius">
-                    <h:outputText value="#{tableRow.form.radius}"/>
+                    <h:outputText value="#{row.form.radius}"/>
                 </p:column>
 
                 <p:column headerText="Result">
-                    <h:outputText value="#{tableRow.result}"/>
+                    <h:outputText value="#{row.result}"/>
                 </p:column>
 
                 <p:column headerText="Current time">
-                    <h:outputText value="#{tableRow.currentDate}"/>
+                    <h:outputText value="#{row.currentDate}"/>
                 </p:column>
 
                 <p:column headerText="Request time">
-                    <h:outputText value="#{tableRow.requestTime}"/>
+                    <h:outputText value="#{row.requestTime}"/>
                 </p:column>
             </p:dataTable>
         </div>
@@ -96,18 +96,10 @@
         <div class="buttons-container button-container-main">
             <h:button id="homeButton" value="Начальная страница" styleClass="button-style" outcome="go-index"/>
             <p:commandButton ajax="true" id="reset" value="Очистить" styleClass="button-style"
-                             action="#{tableRowDao.clearAll()}" update="table drawPointsPanel"/>
+                             action="#{tableRowDao.clearAll()}" update="table"/>
         </div>
     </div>
     <h:outputScript name="script.js" library="build" type="module"/>
 </h:body>
-<h:panelGroup id="drawPointsPanel">
-<!--    <h:outputScript>-->
-<!--        drawGraph(JSON.parse('#{pointDAO.pointsAsJSON}'), '#{point.radius}');-->
-<!--    </h:outputScript>-->
-</h:panelGroup>
 
-<p:remoteCommand name="initGraph" update="drawPointsPanel" process="@this"/>
-<p:remoteCommand name="addAttempt" action="#{tableRow.form.radius}" update="table drawPointsPanel"
-                 process="@this"/>
 </html>

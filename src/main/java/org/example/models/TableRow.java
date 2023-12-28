@@ -6,20 +6,22 @@ import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.*;
+import org.primefaces.PrimeFaces;
+import org.primefaces.component.tabview.Tab;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Named
-@SessionScoped
+@RequestScoped
 public class TableRow implements Serializable {
     private Form form = new Form();
     private Date currentDate;
     private long requestTime;
     private boolean result;
-
     public void fillResult(){
         currentDate = new Date();
         long currentTime = System.currentTimeMillis();
@@ -36,4 +38,19 @@ public class TableRow implements Serializable {
                 x <= 0 && y >= 0 && x * x + y * y <= (r / 2.) * (r / 2.);
     }
 
+    @Override
+    public String toString() {
+        return String.format("{x: %f, y: %f, res: %b}",
+                form.getPoint().getX(), form.getPoint().getY(), result);
+    }
+
+    @Override
+    public TableRow clone() {
+        TableRow clone = new TableRow();
+        clone.form = form.clone();
+        clone.currentDate = (Date) currentDate.clone();
+        clone.requestTime = requestTime;
+        clone.result = result;
+        return clone;
+    }
 }

@@ -17,4 +17,12 @@ import java.io.Serializable;
 public class Point implements Serializable {
     private double x;
     private double y;
+
+    @Override
+    public Point clone() {
+        Point clone = new Point();
+        clone.x = x;
+        clone.y = y;
+        return clone;
+    }
 }
