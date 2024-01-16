@@ -10,7 +10,7 @@ import org.primefaces.PrimeFaces;
 import org.primefaces.component.tabview.Tab;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Date;
 
 @Getter
 @Setter
@@ -23,8 +23,8 @@ public class TableRow implements Serializable {
     private long requestTime;
     private boolean result;
     public void fillResult(){
-        currentDate = new Date();
         long currentTime = System.currentTimeMillis();
+        currentDate = new Date(currentTime);
         this.result = checkInArea();
         this.requestTime = System.currentTimeMillis() - currentTime;
     }

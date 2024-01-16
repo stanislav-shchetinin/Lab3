@@ -106,10 +106,9 @@ span.right {
 }
 
 .graph {
-    width: 350px;
-    height: 350px;
+    width: 400px;
+    height: 400px;
     border-radius: 10px;
-    padding: 20px;
     margin: 20px;
     background-color: #0b0c2a;
 }
