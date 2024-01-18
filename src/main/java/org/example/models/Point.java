@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.orm.annotations.ColumnsName;
 
 import java.io.Serializable;
 
@@ -15,8 +16,12 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class Point implements Serializable {
-    private double x;
-    private double y;
+
+    @ColumnsName("x")
+    private Double x;
+
+    @ColumnsName("y")
+    private Double y;
 
     @Override
     public Point clone() {

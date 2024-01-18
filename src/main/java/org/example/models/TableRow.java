@@ -6,6 +6,8 @@ import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.*;
+import org.example.orm.annotations.ColumnsName;
+import org.example.orm.annotations.LookInside;
 import org.primefaces.PrimeFaces;
 import org.primefaces.component.tabview.Tab;
 
@@ -19,10 +21,18 @@ import java.sql.Date;
 @RequestScoped
 @AllArgsConstructor
 public class TableRow implements Serializable {
+
+    @LookInside
     private Form form = new Form();
+
+    @ColumnsName("create_date")
     private Date currentDate;
-    private long requestTime;
-    private boolean result;
+
+    @ColumnsName("time_ex")
+    private Long requestTime;
+
+    @ColumnsName("res")
+    private Boolean result;
     public void fillResult(){
         long currentTime = System.currentTimeMillis();
         currentDate = new Date(currentTime);

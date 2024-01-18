@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.orm.annotations.ColumnsName;
+import org.example.orm.annotations.LookInside;
 
 import java.io.Serializable;
 
@@ -18,8 +20,11 @@ import java.io.Serializable;
 @Setter
 public class Form implements Serializable {
 
+    @LookInside
     private Point point = new Point();
-    private int radius;
+
+    @ColumnsName("radius")
+    private Integer radius;
 
     @Override
     public Form clone() {

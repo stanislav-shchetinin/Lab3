@@ -8,9 +8,11 @@ import lombok.SneakyThrows;
 import org.example.models.Form;
 import org.example.models.Point;
 import org.example.models.TableRow;
+import org.example.orm.Query;
 import org.primefaces.PrimeFaces;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,18 +56,10 @@ public class TableRowDao implements TableRowRepo, Serializable {
     public void addTableRow(TableRow row) {
         row.fillResult();
         tableRowList.add(row.clone());
-        try (PreparedStatement pstmt = this.conn.prepareStatement(
-                "INSERT INTO point(x, y, radius, res, create_date, time_ex) VALUES (" +
-                        "?, ?, ?, ?, ?, ?" +
-                        ")");) {
-            pstmt.setDouble(1, row.getForm().getPoint().getX());
-            pstmt.setDouble(2, row.getForm().getPoint().getY());
-            pstmt.setInt(3, row.getForm().getRadius());
-            pstmt.setBoolean(4, row.checkInArea());
-            pstmt.setDate(5, row.getCurrentDate());
-            pstmt.setLong(6, row.getRequestTime());
-            pstmt.executeUpdate();
-        } catch (SQLException e){
+
+        try {
+            Query.insert(conn, "point", row);
+        } catch (SQLException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             e.printStackTrace();
         }
 
