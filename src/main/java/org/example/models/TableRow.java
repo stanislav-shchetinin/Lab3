@@ -17,6 +17,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @Named
 @RequestScoped
+@AllArgsConstructor
 public class TableRow implements Serializable {
     private Form form = new Form();
     private Date currentDate;

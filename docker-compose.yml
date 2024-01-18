@@ -1,0 +1,18 @@
+version: '3.0'
+
+services:
+  db:
+    container_name: db
+    image: postgres:alpine
+    ports:
+      - '5432:5432'
+    environment:
+      - 'POSTGRES_USER=postgres'
+      - 'POSTGRES_DB=web'
+      - 'POSTGRES_PASSWORD=09082001'
+
+  backend:
+    build: .
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
