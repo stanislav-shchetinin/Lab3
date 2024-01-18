@@ -3,51 +3,90 @@ package org.example.orm;
 import org.example.orm.annotations.ColumnsName;
 import org.example.orm.annotations.LookInside;
 
-import javax.swing.text.html.parser.Entity;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 
-public class Query {
+public class Query<T> {
 
-    private static final Map<Class<?>, Method> classMethodMap;
+    private static final Map<Class<?>, Method> classGetMethodMap;
+    private static final Map<Class<?>, Method> classSetMethodMap;
 
     static {
-        classMethodMap = new HashMap<>();
+        classGetMethodMap = new HashMap<>();
         try {
-            classMethodMap.put(Double.class, PreparedStatement.class.getMethod("setDouble", int.class, double.class));
-            classMethodMap.put(Integer.class, PreparedStatement.class.getMethod("setInt", int.class, int.class));
-            classMethodMap.put(Boolean.class, PreparedStatement.class.getMethod("setBoolean", int.class, boolean.class));
-            classMethodMap.put(Date.class, PreparedStatement.class.getMethod("setDate", int.class, Date.class));
-            classMethodMap.put(Long.class, PreparedStatement.class.getMethod("setLong", int.class, long.class));
+            classGetMethodMap.put(Double.class, PreparedStatement.class.getMethod("setDouble", int.class, double.class));
+            classGetMethodMap.put(Integer.class, PreparedStatement.class.getMethod("setInt", int.class, int.class));
+            classGetMethodMap.put(Boolean.class, PreparedStatement.class.getMethod("setBoolean", int.class, boolean.class));
+            classGetMethodMap.put(Date.class, PreparedStatement.class.getMethod("setDate", int.class, Date.class));
+            classGetMethodMap.put(Long.class, PreparedStatement.class.getMethod("setLong", int.class, long.class));
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
     }
-    public static void insert(Connection connection, String tableName, Object obj) throws
+
+    static {
+        classSetMethodMap = new HashMap<>();
+        try {
+            classSetMethodMap.put(Double.class, ResultSet.class.getMethod("getDouble", String.class));
+            classSetMethodMap.put(Integer.class, ResultSet.class.getMethod("getInt", String.class));
+            classSetMethodMap.put(Boolean.class, ResultSet.class.getMethod("getBoolean", String.class));
+            classSetMethodMap.put(Date.class, ResultSet.class.getMethod("getDate", String.class));
+            classSetMethodMap.put(Long.class, ResultSet.class.getMethod("getLong", String.class));
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void insert(Connection connection, String tableName, T obj) throws
             InvocationTargetException, NoSuchMethodException, IllegalAccessException, SQLException {
 
-        Map<String, Object> map = mapColumnNameAndGetter(obj);
+        Map<String, Object> map = mapColumnNameAndObject(obj);
 
         try (PreparedStatement pstmt = connection.prepareStatement(getQueryString(tableName, map))) {
             int num = 0;
             for (Object objectFromField : map.values()){
                 ++num;;
-                classMethodMap.get(objectFromField.getClass()).invoke(pstmt, num, objectFromField);
+                classGetMethodMap.get(objectFromField.getClass()).invoke(pstmt, num, objectFromField);
             }
             pstmt.executeUpdate();
         }
 
+    }
+
+    public List<T> select(Connection connection, String tableName, Class<T> clazz) throws
+            InvocationTargetException, NoSuchMethodException, IllegalAccessException, SQLException, InstantiationException{
+        List<T> res = new ArrayList<>();
+        String query = String.format("SELECT * FROM %s", tableName);
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                T obj = clazz.getConstructor().newInstance();
+                fillObject(resultSet, obj);
+                res.add(obj);
+            }
+        }
+        return res;
+    }
+
+    public static void fillObject(ResultSet resultSet, Object obj) throws
+            NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        for (Field field : obj.getClass().getDeclaredFields()){
+            if (field.isAnnotationPresent(LookInside.class)) {
+                fillObject(resultSet, getGetterFromName(obj, field.getName()).invoke(obj));
+            } else if (field.isAnnotationPresent(ColumnsName.class)) {
+                ColumnsName annotation = field.getAnnotation(ColumnsName.class);
+                Method setter = getSetterFromField(obj, field);
+                Object arg = classSetMethodMap.get(field.getType()).invoke(resultSet, annotation.value());
+                setter.invoke(obj, arg);
+            }
+        }
     }
 
     public static String getQueryString(String tableName, Map<String, Object> map) {
@@ -72,13 +111,13 @@ public class Query {
         return res.toString();
     }
 
-    public static Map<String, Object> mapColumnNameAndGetter(Object obj) throws
+    public static Map<String, Object> mapColumnNameAndObject(Object obj) throws
             NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Map<String, Object> res = new HashMap<>();
         for (Field field : obj.getClass().getDeclaredFields()){
-            Method getter = getGetter(obj, field.getName());
+            Method getter = getGetterFromName(obj, field.getName());
             if (field.isAnnotationPresent(LookInside.class)){
-                Map<String, Object> resInside = mapColumnNameAndGetter(getter.invoke(obj));
+                Map<String, Object> resInside = mapColumnNameAndObject(getter.invoke(obj));
                 res.putAll(resInside);
             } else if (field.isAnnotationPresent(ColumnsName.class)){
                 ColumnsName annotation = field.getAnnotation(ColumnsName.class);
@@ -88,9 +127,14 @@ public class Query {
         return res;
     }
 
-    public static Method getGetter(Object obj, String nameVar) throws NoSuchMethodException {
+    public static Method getGetterFromName(Object obj, String nameVar) throws NoSuchMethodException {
         String getterName = getGetterName(nameVar);
         return obj.getClass().getMethod(getterName);
+    }
+
+    public static Method getSetterFromField(Object obj, Field field) throws NoSuchMethodException {
+        String setterName = getSetterName(field.getName());
+        return obj.getClass().getMethod(setterName, field.getType());
     }
 
     public static String getGetterName(String nameVar){

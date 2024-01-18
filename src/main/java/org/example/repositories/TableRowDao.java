@@ -24,9 +24,11 @@ public class TableRowDao implements TableRowRepo, Serializable {
 
     private static final String DRIVER = "org.postgresql.Driver";
     private static final String URL = "jdbc:postgresql://localhost:5432/web";
+    private static final String TABLE_NAME = "point";
 
-    private final List<TableRow> tableRowList = new ArrayList<>();
+    private List<TableRow> tableRowList;
     private Connection conn;
+    private final Query<TableRow> tableRowQuery;
 
     public TableRowDao(){
         try {
@@ -40,6 +42,7 @@ public class TableRowDao implements TableRowRepo, Serializable {
         } catch (SQLException e){
             e.printStackTrace();
         }
+        tableRowQuery = new Query<>();
         create();
         load();
     }
@@ -58,7 +61,7 @@ public class TableRowDao implements TableRowRepo, Serializable {
         tableRowList.add(row.clone());
 
         try {
-            Query.insert(conn, "point", row);
+            tableRowQuery.insert(conn, TABLE_NAME, row);
         } catch (SQLException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -68,17 +71,12 @@ public class TableRowDao implements TableRowRepo, Serializable {
     @Override
     public void clearAll() {
         tableRowList.clear();
-        String query = "DELETE FROM point";
+        String query = String.format("DELETE FROM %s", TABLE_NAME);
         try (PreparedStatement preparedStatement = this.conn.prepareStatement(query)) {
-            int rows = preparedStatement.executeUpdate();
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public void updateCanvas(TableRow row){
-        PrimeFaces.current().executeScript(String.format("redrawCanvas(%s, %d)",
-                tableRowList.toString(), row.getForm().getRadius()));
     }
 
     public void create(){
@@ -92,36 +90,18 @@ public class TableRowDao implements TableRowRepo, Serializable {
                 "    time_ex BIGINT\n" +
                 ");";
         try (PreparedStatement preparedStatement = this.conn.prepareStatement(query)) {
-            int rows = preparedStatement.executeUpdate();
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void load(){
-        tableRowList.clear();
-        String query = "SELECT * FROM point";
-        try (PreparedStatement preparedStatement = this.conn.prepareStatement(query);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-
-            while (resultSet.next()) {
-                double x = resultSet.getDouble("x");
-                double y = resultSet.getDouble("y");
-                int radius = resultSet.getInt("radius");
-                boolean result = resultSet.getBoolean("res");
-                Date currentDate = resultSet.getDate("create_date");
-                long requestTime = resultSet.getLong("time_ex");
-
-                Point point = new Point(x, y);
-                Form form = new Form(point, radius);
-                TableRow tableRow = new TableRow(form, currentDate, requestTime, result);
-
-                tableRowList.add(tableRow);
-
-            }
-        } catch (SQLException e) {
+        try {
+            tableRowList = tableRowQuery.select(conn, TABLE_NAME, TableRow.class);
+        } catch (SQLException | InvocationTargetException | NoSuchMethodException | IllegalAccessException |
+                 InstantiationException e) {
             e.printStackTrace();
         }
-
     }
 }
