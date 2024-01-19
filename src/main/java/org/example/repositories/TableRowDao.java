@@ -2,28 +2,25 @@ package org.example.repositories;
 
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 import lombok.Getter;
-import lombok.SneakyThrows;
-import org.example.models.Form;
-import org.example.models.Point;
 import org.example.models.TableRow;
 import org.example.orm.Query;
-import org.primefaces.PrimeFaces;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 @Named
 @SessionScoped
 @Getter
 public class TableRowDao implements TableRowRepo, Serializable {
 
-    private static final String DRIVER = "org.postgresql.Driver";
-    private static final String URL = "jdbc:postgresql://localhost:5432/web";
     private static final String TABLE_NAME = "point";
 
     private List<TableRow> tableRowList;
@@ -31,17 +28,7 @@ public class TableRowDao implements TableRowRepo, Serializable {
     private final Query<TableRow> tableRowQuery;
 
     public TableRowDao(){
-        try {
-            Class.forName(DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            this.conn = DriverManager.getConnection(URL,
-                    "postgres", "09082001");
-        } catch (SQLException e){
-            e.printStackTrace();
-        }
+        dataBaseConfig();
         tableRowQuery = new Query<>();
         create();
         load();
@@ -102,6 +89,25 @@ public class TableRowDao implements TableRowRepo, Serializable {
         } catch (SQLException | InvocationTargetException | NoSuchMethodException | IllegalAccessException |
                  InstantiationException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void dataBaseConfig(){
+
+        Properties property = new Properties();
+        try (InputStream fin = FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("/WEB-INF/config.properties")) {
+            property.load(fin);
+
+            String driver = property.getProperty("db.driver");
+            String url = property.getProperty("db.url");
+            String login = property.getProperty("db.login");
+            String password = property.getProperty("db.password");
+
+            Class.forName(driver);
+            this.conn = DriverManager.getConnection(url,
+                    login, password);
+        } catch (SQLException | IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 }

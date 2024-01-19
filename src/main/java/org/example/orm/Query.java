@@ -48,13 +48,13 @@ public class Query<T> {
 
         Map<String, Object> map = mapColumnNameAndObject(obj);
 
-        try (PreparedStatement pstmt = connection.prepareStatement(getQueryString(tableName, map))) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(getQueryString(tableName, map))) {
             int num = 0;
             for (Object objectFromField : map.values()){
-                ++num;;
-                classGetMethodMap.get(objectFromField.getClass()).invoke(pstmt, num, objectFromField);
+                ++num;
+                classGetMethodMap.get(objectFromField.getClass()).invoke(preparedStatement, num, objectFromField);
             }
-            pstmt.executeUpdate();
+            preparedStatement.executeUpdate();
         }
 
     }

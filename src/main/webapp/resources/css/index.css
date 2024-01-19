@@ -92,19 +92,6 @@ span.right {
     justify-content: space-between;
 }
 
-.form-container #form{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 350px;
-    height: 350px;
-    border-radius: 10px;
-    /*padding: 20px;*/
-    margin: 20px;
-    background-color: #0b0c2a;
-}
-
 .graph {
     width: 400px;
     height: 400px;

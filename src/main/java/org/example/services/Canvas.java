@@ -2,7 +2,6 @@ package org.example.services;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
-import org.example.models.TableRow;
 import org.primefaces.PrimeFaces;
 
 @Named

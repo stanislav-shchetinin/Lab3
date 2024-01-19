@@ -1,15 +1,10 @@
 package org.example.models;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.*;
 import org.example.orm.annotations.ColumnsName;
 import org.example.orm.annotations.LookInside;
-import org.primefaces.PrimeFaces;
-import org.primefaces.component.tabview.Tab;
 
 import java.io.Serializable;
 import java.sql.Date;
